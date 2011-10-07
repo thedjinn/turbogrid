@@ -64,11 +64,30 @@ module TurboGrid
       end
     end
 
-    def render
-      data = @grid.scope
+    def render_table
       @view.content_tag :table do
         render_thead + render_tbody + render_tfoot
       end
+    end
+
+    def render_select_filter filter
+      @view.select_tag filter.input_name, @view.options_for_select(filter.choices, filter.value)
+    end
+
+    def render_filter
+      return "".html_safe if @grid.filters.empty?
+
+      @view.form_tag @grid.filter_path, :method => :get, :class => "filter" do
+        @grid.filter_options.map do |key, value|
+          @view.hidden_field_tag(key, value)
+        end.join.html_safe +
+        render_select_filter(@grid.filters.first) +
+        @view.submit_tag("Go")
+      end
+    end
+
+    def render
+      render_filter + render_table
     end
   end
 end

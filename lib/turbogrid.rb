@@ -27,8 +27,35 @@ module TurboGrid
     end
   end
 
+  class SelectFilter
+    attr_accessor :field
+    attr_accessor :name
+    attr_accessor :choices
+    attr_accessor :value
+
+    def initialize field, name, choices, namespace
+      @field = field
+      @name = name
+      @choices = choices
+      @namespace = namespace
+    end
+
+    def input_name
+      "#{@namespace}[#{@field}]"
+    end
+
+    def perform scope
+      if @value && !@value.empty?
+        scope.where("#{@field} = ?", @value)
+      else
+        scope
+      end
+    end
+  end
+
   class GridBuilder
     attr_reader :columns
+    attr_reader :filters
     attr_reader :scope
 
     def initialize scope, params, &block
@@ -36,6 +63,7 @@ module TurboGrid
 
       @scope = scope.scoped
       @columns = []
+      @filters = []
       @namespace = "#{scope.model_name.underscore}_grid"
       @options = params[@namespace]
 
@@ -45,11 +73,28 @@ module TurboGrid
       end
 
       instance_eval &block
+
+      @filters.each do |filter|
+        @scope = filter.perform @scope
+      end
     end
 
     def link_for options
       { @namespace => options }
     end
+
+    def filter_path
+      link_for @options
+    end
+
+    def filter_options
+      {
+        "#{@namespace}[sort_dir]" => @options[:sort_dir],
+        "#{@namespace}[sort_by]" => @options[:sort_by]
+      }
+    end
+
+    # DSL methods below
 
     def column field, name=nil, options={}, &block
       name = name || @scope.human_attribute_name(field)
@@ -59,6 +104,14 @@ module TurboGrid
       end
 
       @columns << Column.new(field, name, options, &block)
+    end
+
+    def select_filter field, name, choices
+      choices = [["", ""]] + choices.to_a
+      filter = SelectFilter.new(field, name, choices, @namespace)
+      value = @options[field.to_s]
+      filter.value = value if filter.choices.detect { |choice| choice[1] == value }
+      @filters << filter
     end
   end
 end
