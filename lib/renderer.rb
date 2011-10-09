@@ -87,7 +87,7 @@ module TurboGrid
     end
 
     def render
-      render_filter + render_table
+      render_filter + render_table + @view.paginate(@grid.scope, @grid.pagination_options)
     end
   end
 end

@@ -1,6 +1,8 @@
 require "renderer"
 require "extensions"
 
+require "kaminari"
+
 module TurboGrid
   class Column
     attr_reader :options
@@ -61,11 +63,14 @@ module TurboGrid
     def initialize scope, params, &block
       raise ArgumentError, "Missing block" unless block_given?
 
-      @scope = scope.scoped
       @columns = []
       @filters = []
       @namespace = "#{scope.model_name.underscore}_grid"
       @options = params[@namespace]
+      @scope = scope.scoped.page(@options[:page]).per(20)
+
+      # delete the page option so that kaminari properly creates links
+      @options.delete :page
 
       if @options[:sort_by]
         @options[:sort_dir] = if @options[:sort_dir] == "desc" then "desc" else "asc" end
@@ -91,6 +96,12 @@ module TurboGrid
       {
         "#{@namespace}[sort_dir]" => @options[:sort_dir],
         "#{@namespace}[sort_by]" => @options[:sort_by]
+      }
+    end
+
+    def pagination_options
+      {
+        :param_name => "#{@namespace}[page]"
       }
     end
 
