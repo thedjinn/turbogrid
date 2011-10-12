@@ -66,7 +66,7 @@ module TurboGrid
       @columns = []
       @filters = []
       @namespace = "#{scope.model_name.underscore}_grid"
-      @options = params[@namespace]
+      @options = params[@namespace] || {}
       @scope = scope.scoped.page(@options[:page]).per(20)
 
       # delete the page option so that kaminari properly creates links
