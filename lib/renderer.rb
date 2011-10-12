@@ -64,9 +64,9 @@ module TurboGrid
     end
 
     def render_tfoot
-      @view.content_tag :tfoot do
-        "<tr><td>footer</td></tr>".html_safe
-      end
+      #@view.content_tag :tfoot do
+        #"<tr><td>footer</td></tr>".html_safe
+      #end
     end
 
     def render_table
