@@ -93,10 +93,12 @@ module TurboGrid
     end
 
     def filter_options
-      {
-        "#{@namespace}[sort_dir]" => @options[:sort_dir],
-        "#{@namespace}[sort_by]" => @options[:sort_by]
-      }
+      options = {}
+
+      options["#{@namespace}[sort_dir]"] = @options[:sort_dir] if @options[:sort_dir]
+      options["#{@namespace}[sort_by]"] = @options[:sort_by] if @options[:sort_by]
+
+      options
     end
 
     def pagination_options
