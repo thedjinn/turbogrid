@@ -31,6 +31,11 @@ module TurboGrid
 
     def render_column_field column, record
       content = column.content_for record
+
+      if column.url
+        content = @view.link_to(content, column.url.call(record))
+      end
+
       @view.content_tag :td, content
     end
 

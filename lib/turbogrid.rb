@@ -7,13 +7,16 @@ module TurboGrid
   class Column
     attr_reader :options
     attr_reader :name
+    attr_reader :url
     attr_reader :field
 
-    def initialize field, name, options={}, &block
-      @name = name
+    def initialize field, options={}, &block
       @field = field
       @block = block
+
       @options = options
+      @name = options[:name]
+      @url = options[:url]
     end
 
     def content_for record
@@ -109,14 +112,14 @@ module TurboGrid
 
     # DSL methods below
 
-    def column field, name=nil, options={}, &block
-      name = name || @scope.human_attribute_name(field)
+    def column field, options={}, &block
+      options[:name] ||= @scope.human_attribute_name(field)
 
       if @options[:sort_by] == field.to_s
         options[:sort] = @options[:sort_dir]
       end
 
-      @columns << Column.new(field, name, options, &block)
+      @columns << Column.new(field, options, &block)
     end
 
     def select_filter field, name, choices
