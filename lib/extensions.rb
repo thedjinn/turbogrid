@@ -4,22 +4,18 @@ module TurboGrid
   module ActionViewExtensions
     extend ActiveSupport::Concern
 
-    module InstanceMethods
-      def render_grid grid
-        Renderer.new(self, grid).render
-      end
+    def render_grid grid
+      Renderer.new(self, grid).render
     end
   end
 
   module ActionControllerExtensions
     extend ActiveSupport::Concern
 
-    module InstanceMethods
-      def grid_for scope, &block
-        raise ArgumentError, "Missing block" unless block_given?
+    def grid_for scope, &block
+      raise ArgumentError, "Missing block" unless block_given?
 
-        GridBuilder.new scope, params, &block
-      end
+      GridBuilder.new scope, params, &block
     end
   end
 end
